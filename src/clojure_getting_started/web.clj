@@ -51,6 +51,7 @@
         conn (d/connect uri)
         db (d/db conn)
         ]
+    (println "uri" uri)
     db))
 
 (def db (db-connect))
