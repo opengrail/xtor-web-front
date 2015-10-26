@@ -4,8 +4,8 @@
   :license {:name "Eclipse Public License v1.0"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
-                                   :username (:env my-datomic-username)
-                                   :password (:env my-datomic-password)}}
+                                   :username :env/my-datomic-username
+                                   :password :env/my-datomic-password}}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [compojure "1.4.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
