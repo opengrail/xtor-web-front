@@ -56,6 +56,8 @@
 
 (println (str "jdbc url " (env :jdbc-database-url)))
 
+(clojure.pprint/pprint (set-jdbc-credentials! (env :jdbc-database-url)))
+
 (defn splash []
   {:status  200
    :headers {"Content-Type" "text/plain"}
