@@ -29,7 +29,7 @@
 
 ; TODO: remove :sql: from here and put the storage into REDIS
 
-(def db (db-connect))
+;(def db (db-connect))
 
 (clojure.pprint/pprint db)
 
