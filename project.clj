@@ -11,6 +11,7 @@
                  [ring/ring-jetty-adapter "1.4.0"]
                  [cheshire "5.5.0"]
                  [environ "1.0.1"]
+                 [org.postgresql/postgresql "9.3-1102-jdbc41"]
                  [com.taoensso/carmine "2.12.0"]
                  [com.datomic/datomic-pro "0.9.5302" :exclusions [joda-time]]]
   :min-lein-version "2.0.0"
