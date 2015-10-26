@@ -6,7 +6,7 @@
   :repositories {"my.datomic.com" {:url      "https://my.datomic.com/repo"
                                    :username :env
                                    :password :env}}
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [compojure "1.4.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
                  [cheshire "5.5.0"]

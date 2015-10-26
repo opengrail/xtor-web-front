@@ -20,31 +20,51 @@
   (if-let [value (redis/wcar (get-redis-connection-pool) (redis/lindex list-name 0))]
     (parse-string value true)))
 
+(defn- set-jdbc-credentials! [url]
+  (let [user-fields ((-> (clojure.string/split url #"\?")
+                         (last)
+                         (clojure.string/split #"&")
+                         (first)
+                         (clojure.string/split #"=")))
+        user-key (first user-fields)
+        user-value (last user-fields)
+        password-fields (-> (clojure.string/split url #"&")
+                            (last)
+                            (clojure.string/split #"="))
+        password-key (first password-fields)
+        password-value (last password-fields)]
+    (if (= "user" user-key)
+      (System/setProperty "datomic.sqlUser" user-value))
+    (if (= "password" password-key)
+      (System/setProperty "datomic.sqlPassword" password-value))))
+
 (defn db-connect []
   (let [datomic (look-up-datomic "datomic")
+        jdbc-url (env :jdbc-database-url)
+        properties-set! (set-jdbc-credentials! jdbc-url)
+        simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
         uri (str "datomic:sql://" (:host datomic) ":" (:port datomic) "/customer"
-                 "?" (env :jdbc-database-url)
+                 "?" simple-jdbc
                  "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory")
-        ;created (d/create-database uri)
-        ;conn (d/connect uri)
-        ;db (d/db conn)
+        db-created! (d/create-database uri)
+        conn (d/connect uri)
+        db (d/db conn)
         ]
-    uri))
+    db))
 
-; TODO: WTF - need to provide JDBC URL??
-
-(def db (db-connect))
+(def db
+  (db-connect))
 
 (clojure.pprint/pprint db)
 
 (defn splash []
-  {:status 200
+  {:status  200
    :headers {"Content-Type" "text/plain"}
-   :body (pr-str ["Hello" :from 'Heroku])})
+   :body    (pr-str ["Hello" :from 'Heroku])})
 
 (defroutes app
            (GET "/" []
-       (splash))
+             (splash))
            (ANY "*" []
              (route/not-found (slurp (io/resource "404.html")))))
 
