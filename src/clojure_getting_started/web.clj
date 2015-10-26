@@ -21,11 +21,11 @@
     (parse-string value true)))
 
 (defn- set-jdbc-credentials! [url]
-  (let [user-fields ((-> (clojure.string/split url #"\?")
-                         (last)
-                         (clojure.string/split #"&")
-                         (first)
-                         (clojure.string/split #"=")))
+  (let [user-fields (-> (clojure.string/split url #"\?")
+                        (last)
+                        (clojure.string/split #"&")
+                        (first)
+                        (clojure.string/split #"="))
         user-key (first user-fields)
         user-value (last user-fields)
         password-fields (-> (clojure.string/split url #"&")
@@ -52,11 +52,7 @@
         ]
     db))
 
-;(def db (db-connect))
-
-(println (str "jdbc url " (env :jdbc-database-url)))
-
-(clojure.pprint/pprint (set-jdbc-credentials! (env :jdbc-database-url)))
+(def db (db-connect))
 
 (defn splash []
   {:status  200
