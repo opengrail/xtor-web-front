@@ -52,10 +52,9 @@
         ]
     db))
 
-(def db
-  (db-connect))
+;(def db (db-connect))
 
-(clojure.pprint/pprint db)
+(println (str "jdbc url " (env :jdbc-database-url)))
 
 (defn splash []
   {:status  200
