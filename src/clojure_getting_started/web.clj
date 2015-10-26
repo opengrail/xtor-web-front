@@ -25,6 +25,7 @@
         uri (str "datomic:sql://" (:host datomic) ":" (:port datomic) "/customer"
                  "?" (env :jdbc-database-url)
                  "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory")
+        created (d/create-database uri)
         conn (d/connect uri)
         db (d/db conn)]
     db))
