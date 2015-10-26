@@ -1,10 +1,34 @@
 (ns clojure-getting-started.web
   (:require [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
             [compojure.handler :refer [site]]
-            [compojure.route :as route]
             [clojure.java.io :as io]
             [ring.adapter.jetty :as jetty]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            [taoensso.carmine :as redis :refer (wcar)]
+            [datomic.api :as d]
+            [cheshire.core :refer :all]
+            [compojure.route :as route]))
+
+
+(defn- get-redis-connection-pool []
+  (let [spec {:pool {} :spec (if-let [uri (env :redis-url)]
+                               {:uri uri}
+                               {:host "127.0.0.1" :port 6379})}]
+    spec))
+
+(defn- look-up-datomic [list-name]
+  (if-let [value (redis/wcar (get-redis-connection-pool) (redis/lindex list-name 0))]
+    (parse-string value true)))
+
+(defn db-connect []
+  (let [datomic (look-up-datomic "datomic")
+        uri (str "datomic:sql://" (:host datomic) ":" (:port datomic) "/customer")
+        conn (d/connect uri)
+        db (d/db conn)]
+    db))
+
+; TODO: remove :sql: from here and put the storage into REDIS
+
 
 (defn splash []
   {:status 200
@@ -12,10 +36,10 @@
    :body (pr-str ["Hello" :from 'Heroku])})
 
 (defroutes app
-  (GET "/" []
+           (GET "/" []
        (splash))
-  (ANY "*" []
-       (route/not-found (slurp (io/resource "404.html")))))
+           (ANY "*" []
+             (route/not-found (slurp (io/resource "404.html")))))
 
 (defn -main [& [port]]
   (let [port (Integer. (or port (env :port) 5000))]
