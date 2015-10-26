@@ -45,7 +45,8 @@
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
         uri (str "datomic:sql://" (:host datomic) ":" (:port datomic) "/customer"
                  "?" simple-jdbc
-                 "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory")
+                 ;"&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                 )
         db-created! (d/create-database uri)
         conn (d/connect uri)
         db (d/db conn)
