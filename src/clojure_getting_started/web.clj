@@ -29,6 +29,7 @@
 
 ; TODO: remove :sql: from here and put the storage into REDIS
 
+(def db (db-connect))
 
 (defn splash []
   {:status 200
