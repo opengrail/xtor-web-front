@@ -31,6 +31,8 @@
 
 (def db (db-connect))
 
+(clojure.pprint/pprint db)
+
 (defn splash []
   {:status 200
    :headers {"Content-Type" "text/plain"}
