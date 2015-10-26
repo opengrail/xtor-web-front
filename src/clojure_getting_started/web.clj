@@ -36,7 +36,8 @@
     (if (= "user" user-key)
       (System/setProperty "datomic.sqlUser" user-value))
     (if (= "password" password-key)
-      (System/setProperty "datomic.sqlPassword" password-value))))
+      (System/setProperty "datomic.sqlPassword" password-value))
+    (System/setProperty "datomic.sql-driver-params" "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
 
 (defn db-connect []
   (let [datomic (look-up-datomic "datomic")
@@ -44,8 +45,7 @@
         properties-set! (set-jdbc-credentials! jdbc-url)
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
         uri (str "datomic:sql://" (:host datomic) ":" (:port datomic) "/customer"
-                 "?" simple-jdbc
-                 "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory")
+                 "?" simple-jdbc)
         printed! (println "uri" uri)
         db-created! (d/create-database uri)
         conn (d/connect uri)
