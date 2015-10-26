@@ -37,7 +37,7 @@
       (System/setProperty "datomic.sqlUser" user-value))
     (if (= "password" password-key)
       (System/setProperty "datomic.sqlPassword" password-value))
-    (System/setProperty "datomic.sql-driver-params" "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
+    (System/setProperty "datomic.sqlDriverParams" "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
 
 (defn db-connect []
   (let [datomic (look-up-datomic "datomic")
