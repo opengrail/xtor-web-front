@@ -47,6 +47,7 @@
                  "?" simple-jdbc
                  ;"&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
                  )
+        printed! (println "uri" uri)
         db-created! (d/create-database uri)
         conn (d/connect uri)
         db (d/db conn)
