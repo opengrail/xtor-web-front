@@ -22,16 +22,18 @@
 
 (defn db-connect []
   (let [datomic (look-up-datomic "datomic")
-        uri (str "datomic:sql://" (:host datomic) ":" (:port datomic) "/customer")
+        uri (str "datomic:sql://" (:host datomic) ":" (:port datomic) "/customer"
+                 "?" (env :jdbc-database-url)
+                 "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory")
         conn (d/connect uri)
         db (d/db conn)]
     db))
 
-; TODO: remove :sql: from here and put the storage into REDIS
+; TODO: WTF - need to provide JDBC URL??
 
-;(def db (db-connect))
+(def db (db-connect))
 
-;(clojure.pprint/pprint db)
+(clojure.pprint/pprint db)
 
 (defn splash []
   {:status 200
