@@ -37,18 +37,20 @@
       (System/setProperty "datomic.sqlUser" user-value))
     (if (= "password" password-key)
       (System/setProperty "datomic.sqlPassword" password-value))
-    (System/setProperty "datomic.sqlDriverParams" "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
+    (System/setProperty "datomic.sqlDriverParams"
+                        "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
 
 (defn db-connect []
   (let [datomic (look-up-datomic "datomic")
         jdbc-url (env :jdbc-database-url)
         properties-set! (set-jdbc-credentials! jdbc-url)
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
-        uri (str "datomic:sql://customer?" simple-jdbc)
+        uri (str "datomic:sql://datomic?" simple-jdbc)
         conn-map {:protocol :sql
-                  :db-name "customer"
+                  :db-name "datomic"
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  :jdbc-url (env :jdbc-database-url) }
+                  :jdbc-url (env :jdbc-database-url)
+                  :ssl true}
         conn (d/connect conn-map)
         db (d/db conn)
         ]
