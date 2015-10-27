@@ -20,42 +20,30 @@
   (if-let [value (redis/wcar (get-redis-connection-pool) (redis/lindex list-name 0))]
     (parse-string value true)))
 
-(defn- set-jdbc-credentials! [url]
+(defn- get-jdbc-credentials [url]
   (let [user-fields (-> (clojure.string/split url #"\?")
                         (last)
                         (clojure.string/split #"&")
                         (first)
                         (clojure.string/split #"="))
-        user-key (first user-fields)
         user-value (last user-fields)
         password-fields (-> (clojure.string/split url #"&")
                             (last)
                             (clojure.string/split #"="))
-        password-key (first password-fields)
         password-value (last password-fields)]
-    (System/setProperty "datomic.sqlUser" user-value)
-    (System/setProperty "datomic.sqlPassword" password-value)
-    (System/setProperty "datomic.sqlDriverParams"
-                        "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
+    {:username user-value :password password-value}))
 
 (defn db-connect []
   (let [datomic (look-up-datomic "datomic")
         jdbc-url (env :jdbc-database-url)
-        printed! (println "jdbc-url " (env :jdbc-database-url))
-        properties-set! (set-jdbc-credentials! jdbc-url)
-        properties-print! (clojure.pprint/pprint (System/getProperties))
+        credentials (get-jdbc-credentials jdbc-url)
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
-        uri (str "datomic:sql://datomic?" simple-jdbc)
         conn-map {:protocol          :sql
                   :db-name           "datomic"
-                  :host              "host-RAY"
-                  :port              54321
-                  :username          "XYZ"
-                  :password          "ABC"
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  :sql-url           simple-jdbc ;(env :jdbc-database-url)
-                  ;:ssl true
-                  }
+                  :username (:username credentials)
+                  :password (:password credentials)
+                  :sql-url           simple-jdbc}
         created! (d/create-database conn-map)
         conn (d/connect conn-map)
         db (d/db conn)
