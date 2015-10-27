@@ -20,7 +20,7 @@
   (if-let [value (redis/wcar (get-redis-connection-pool) (redis/lindex list-name 0))]
     (parse-string value true)))
 
-(defn- map-jdbc-credentials [url]
+(defn- set-jdbc-credentials! [url]
   (let [user-fields (-> (clojure.string/split url #"\?")
                         (last)
                         (clojure.string/split #"&")
