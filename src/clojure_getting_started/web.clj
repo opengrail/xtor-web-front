@@ -51,6 +51,7 @@
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
                   :sql-url (env :jdbc-database-url)
                   :ssl true}
+        created! (d/create-database conn-map)
         conn (d/connect conn-map)
         db (d/db conn)
         ]
