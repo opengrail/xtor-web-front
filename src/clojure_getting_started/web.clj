@@ -50,8 +50,10 @@
         uri (str "datomic:sql://datomic?" simple-jdbc)
         conn-map {:protocol :sql
                   :db-name "datomic"
-                  :host (:host datomic)
-                  :port (:port datomic)
+                  :host "host-RAY"
+                  :port 54321
+                  :username "XYZ"
+                  :password "ABC"
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
                   :sql-url (env :jdbc-database-url)
                   :ssl true}
