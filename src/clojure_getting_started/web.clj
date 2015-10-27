@@ -35,18 +35,17 @@
 
 (defn db-connect []
   (let [datomic (look-up-datomic "datomic")
-        jdbc-url (env :jdbc-database-url)
-        credentials (get-jdbc-credentials jdbc-url)
-        jdbc-params (str "?username=" (:username credentials) "&password=" (:password credentials))
-        ssl-params "ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-
-        simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
-        conn-map {:protocol          :sql
-                  :db-name           "datomic"
-                  :sql-driver-params (str jdbc-params "&" ssl-params)
-                  ;:username (:username credentials)
-                  ;:password (:password credentials)
-                  :sql-url           simple-jdbc}
+        ;jdbc-url (env :jdbc-database-url)
+        ;credentials (get-jdbc-credentials jdbc-url)
+        ;jdbc-params (str "?username=" (:username credentials) "&password=" (:password credentials))
+        ;ssl-params "ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+        ;simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
+        ;conn-map {:protocol          :sql
+        ;          :db-name           "datomic"
+        ;          :sql-driver-params (str jdbc-params "&" ssl-params)
+        ;          ;:username (:username credentials)
+        ;          ;:password (:password credentials)
+        ;          :sql-url           simple-jdbc}
 
         hard-coded "datomic:sql://datomic?jdbc:postgresql://ec2-107-21-219-142.compute-1.amazonaws.com:5432/dd7fmhk85j9m9d?user=dxdrdjqkrmsxpn&password=VAnW_4FQ86ks3NKZwHsMTsM0C2&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
         created! (d/create-database hard-coded)
