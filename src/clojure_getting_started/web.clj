@@ -48,21 +48,21 @@
         properties-set! (set-jdbc-credentials! jdbc-url)
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
         uri (str "datomic:sql://datomic?" simple-jdbc)
-        conn-map {:protocol :sql
-                  :db-name "datomic"
-                  :host "host-RAY"
-                  :port 54321
-                  :username "XYZ"
-                  :password "ABC"
+        conn-map {:protocol          :sql
+                  :db-name           "datomic"
+                  :host              "host-RAY"
+                  :port              54321
+                  :username          "XYZ"
+                  :password          "ABC"
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  :sql-url (env :jdbc-database-url)
+                  :sql-url           "jdbc:postgresql://foohost:789/datomic"  ;(env :jdbc-database-url)
                   ;:ssl true
                   }
-        created! (d/create-database conn-map)
-        conn (d/connect conn-map)
-        db (d/db conn)
-        ]
-    db))
+created! (d/create-database conn-map)
+conn (d/connect conn-map)
+db (d/db conn)
+]
+db ) )
 
 (def db (db-connect))
 
