@@ -47,7 +47,8 @@
         uri (str "datomic:sql://customer?" simple-jdbc)
         conn-map {:protocol :sql
                   :db-name "customer"
-                  :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"}
+                  :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                  :jdbc-url (env :jdbc-database-url) }
         conn (d/connect conn-map)
         db (d/db conn)
         ]
