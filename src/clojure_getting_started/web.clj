@@ -45,7 +45,7 @@
         jdbc-url (env :jdbc-database-url)
         printed! (println "jdbc-url " (env :jdbc-database-url))
         properties-set! (set-jdbc-credentials! jdbc-url)
-        properties-print! ((clojure.pprint/pprint (System/getenv)))
+        properties-print! (clojure.pprint/pprint (System/getenv))
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
         uri (str "datomic:sql://datomic?" simple-jdbc)
         conn-map {:protocol          :sql
