@@ -38,12 +38,12 @@
         jdbc-url (env :jdbc-database-url)
         credentials (get-jdbc-credentials jdbc-url)
         jdbc-params (str "?username=" (:username credentials) "&password=" (:password credentials))
-        ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+        ssl-params "ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
 
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
         conn-map {:protocol          :sql
                   :db-name           "datomic"
-                  :sql-driver-params (str jdbc-params ";" ssl-params)
+                  :sql-driver-params (str jdbc-params "&" ssl-params)
                   ;:username (:username credentials)
                   ;:password (:password credentials)
                   :sql-url           simple-jdbc}
