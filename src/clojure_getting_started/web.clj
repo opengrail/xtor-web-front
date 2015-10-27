@@ -33,14 +33,8 @@
                             (clojure.string/split #"="))
         password-key (first password-fields)
         password-value (last password-fields)]
-    (if (= "user" user-key)
-      (System/setProperty "datomic.sqlUser" user-value))
-
-
-    (if (= "password" password-key)
-      (System/setProperty "datomic.sqlPassword" password-value)
-      (println "password key is <" password-key ">"))
-
+    (System/setProperty "datomic.sqlUser" user-value)
+    (System/setProperty "datomic.sqlPassword" password-value)
     (System/setProperty "datomic.sqlDriverParams"
                         "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
 
