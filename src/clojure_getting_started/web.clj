@@ -34,11 +34,9 @@
         password-key (first password-fields)
         password-value (last password-fields)]
     (if (= "user" user-key)
-      (System/setProperty "datomic.sqlUser" "ABCDEF"))
-    (println "User = " user-value)
+      (System/setProperty "datomic.sqlUser" user-value))
     (if (= "password" password-key)
-      (System/setProperty "datomic.sqlPassword" "GHIJK"))
-    (println "Password = " password-value)
+      (System/setProperty "datomic.sqlPassword" password-value))
     (System/setProperty "datomic.sqlDriverParams"
                         "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
 
