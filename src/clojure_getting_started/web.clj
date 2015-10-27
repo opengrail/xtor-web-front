@@ -50,10 +50,10 @@
         hard-coded "datomic:sql://datomic?jdbc:postgresql://ec2-107-21-219-142.compute-1.amazonaws.com:5432/dd7fmhk85j9m9d?user=dxdrdjqkrmsxpn&password=VAnW_4FQ86ks3NKZwHsMTsM0C2&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
         created! (d/create-database hard-coded)
         worked! (println "Holy mofo, it worked!")
-        conn (d/connect conn-map)
-        db (d/db conn)
+        ;conn (d/connect conn-map)
+        ;db (d/db conn)
         ]
-    db))
+    hard-coded))
 
 (def db (db-connect))
 
