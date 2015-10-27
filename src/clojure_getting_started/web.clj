@@ -20,7 +20,7 @@
   (if-let [value (redis/wcar (get-redis-connection-pool) (redis/lindex list-name 0))]
     (parse-string value true)))
 
-(defn- set-jdbc-credentials! [url]
+(defn- map-jdbc-credentials [url]
   (let [user-fields (-> (clojure.string/split url #"\?")
                         (last)
                         (clojure.string/split #"&")
@@ -44,14 +44,11 @@
         jdbc-url (env :jdbc-database-url)
         properties-set! (set-jdbc-credentials! jdbc-url)
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
-        uri (str "datomic:sql://" (:host datomic) ":" (:port datomic) "/customer"
-                 "?" simple-jdbc)
-        printed! (println "uri" uri)
-        db-created! (d/create-database uri)
+        uri (str "datomic:sql://customer?" simple-jdbc)
+        printed! (println "uri: " uri)
         conn (d/connect uri)
         db (d/db conn)
         ]
-    (println "uri" uri)
     db))
 
 (def db (db-connect))
