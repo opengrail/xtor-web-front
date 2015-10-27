@@ -37,12 +37,14 @@
   (let [datomic (look-up-datomic "datomic")
         jdbc-url (env :jdbc-database-url)
         credentials (get-jdbc-credentials jdbc-url)
+        jdbc-params (str "username=" (:username credentials) ";password=" (:password credentials))
+        ssl-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
         conn-map {:protocol          :sql
                   :db-name           "datomic"
-                  :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  :username (:username credentials)
-                  :password (:password credentials)
+                  :sql-driver-params (str jdbc-params ";" ssl-params)
+                  ;:username (:username credentials)
+                  ;:password (:password credentials)
                   :sql-url           simple-jdbc}
         created! (d/create-database conn-map)
         conn (d/connect conn-map)
