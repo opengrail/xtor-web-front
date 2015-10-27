@@ -49,7 +49,7 @@
         conn-map {:protocol :sql
                   :db-name "datomic"
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  :jdbc-url (env :jdbc-database-url)
+                  :uri (env :jdbc-database-url)
                   :ssl true}
         conn (d/connect conn-map)
         db (d/db conn)
