@@ -22,7 +22,7 @@
     {:username user-value :password password-value}))
 
 (defn db-connect []
-  (let [datomic (look-up-datomic "datomic")
+  (let [
         ;jdbc-url (env :jdbc-database-url)
         ;credentials (get-jdbc-credentials jdbc-url)
         ;jdbc-params (str "?username=" (:username credentials) "&password=" (:password credentials))
