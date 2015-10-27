@@ -56,7 +56,7 @@
                   :username          "XYZ"
                   :password          "ABC"
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  :sql-url           "jdbc:postgresql://foohost:789/datomic" ;(env :jdbc-database-url)
+                  :sql-url           simple-jdbc ;(env :jdbc-database-url)
                   ;:ssl true
                   }
         created! (d/create-database conn-map)
