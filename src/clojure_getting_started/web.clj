@@ -45,6 +45,7 @@
 (defn db-connect []
   (let [datomic (look-up-datomic "datomic")
         jdbc-url (env :jdbc-database-url)
+        printed! (println "jdbc-url " (env :jdbc-database-url))
         properties-set! (set-jdbc-credentials! jdbc-url)
         simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
         uri (str "datomic:sql://datomic?" simple-jdbc)
@@ -55,14 +56,14 @@
                   :username          "XYZ"
                   :password          "ABC"
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  :sql-url           "jdbc:postgresql://foohost:789/datomic"  ;(env :jdbc-database-url)
+                  :sql-url           "jdbc:postgresql://foohost:789/datomic" ;(env :jdbc-database-url)
                   ;:ssl true
                   }
-created! (d/create-database conn-map)
-conn (d/connect conn-map)
-db (d/db conn)
-]
-db ) )
+        created! (d/create-database conn-map)
+        conn (d/connect conn-map)
+        db (d/db conn)
+        ]
+    db))
 
 (def db (db-connect))
 
