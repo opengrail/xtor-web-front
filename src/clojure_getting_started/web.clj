@@ -35,8 +35,10 @@
         password-value (last password-fields)]
     (if (= "user" user-key)
       (System/setProperty "datomic.sqlUser" user-value))
+    (println "User = " user-value)
     (if (= "password" password-key)
       (System/setProperty "datomic.sqlPassword" password-value))
+    (println "Password = " password-value)
     (System/setProperty "datomic.sqlDriverParams"
                         "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
 
@@ -48,6 +50,8 @@
         uri (str "datomic:sql://datomic?" simple-jdbc)
         conn-map {:protocol :sql
                   :db-name "datomic"
+                  :host (:host datomic)
+                  :port (:port datomic)
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
                   :sql-url (env :jdbc-database-url)
                   :ssl true}
