@@ -4,21 +4,9 @@
             [clojure.java.io :as io]
             [ring.adapter.jetty :as jetty]
             [environ.core :refer [env]]
-            [taoensso.carmine :as redis :refer (wcar)]
             [datomic.api :as d]
             [cheshire.core :refer :all]
             [compojure.route :as route]))
-
-
-(defn- get-redis-connection-pool []
-  (let [spec {:pool {} :spec (if-let [uri (env :redis-url)]
-                               {:uri uri}
-                               {:host "127.0.0.1" :port 6379})}]
-    spec))
-
-(defn- look-up-datomic [list-name]
-  (if-let [value (redis/wcar (get-redis-connection-pool) (redis/lindex list-name 0))]
-    (parse-string value true)))
 
 (defn- get-jdbc-credentials [url]
   (let [user-fields (-> (clojure.string/split url #"\?")
