@@ -34,10 +34,10 @@
         password-key (first password-fields)
         password-value (last password-fields)]
     (if (= "user" user-key)
-      (System/setProperty "datomic.sqlUser" user-value))
+      (System/setProperty "datomic.sqlUser" "ABCDEF"))
     (println "User = " user-value)
     (if (= "password" password-key)
-      (System/setProperty "datomic.sqlPassword" password-value))
+      (System/setProperty "datomic.sqlPassword" "GHIJK"))
     (println "Password = " password-value)
     (System/setProperty "datomic.sqlDriverParams"
                         "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory")))
@@ -56,7 +56,8 @@
                   :password "ABC"
                   :sql-driver-params "ssl=true;sslfactory=org.postgresql.ssl.NonValidatingFactory"
                   :sql-url (env :jdbc-database-url)
-                  :ssl true}
+                  ;:ssl true
+                  }
         created! (d/create-database conn-map)
         conn (d/connect conn-map)
         db (d/db conn)
