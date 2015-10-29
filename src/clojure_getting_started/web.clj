@@ -74,10 +74,10 @@
 (defn insert-data [db customer]
   @(d/transact db customer))
 
+(def oscar [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
+
 (defn query-data [db]
-  (let [results (d/pull db [:find (pull ?c [*]) :where [?c :community/name]])
-        customer (str "First:" (:person/first-name results) "Last:" (:person/last-name results))]
-    customer))
+  (d/pull db [:person/first-name :person/last-name] oscar))
 
 (defn get-customer []
   (let [db (db-connect)]
