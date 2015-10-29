@@ -69,14 +69,17 @@
     db))
 
 (defn create-schema [db]
-  @(d/transact db customer-schema))
+  @(d/transact db customer-schema)
+  (println "Create schema"))
 
 (defn insert-data [db customer]
-  @(d/transact db customer))
+  @(d/transact db customer)
+  (println "Insert data"))
 
 (def oscar [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
 
 (defn query-data [db]
+  (println "Query data")
   (d/pull db [:person/first-name :person/last-name] oscar))
 
 (defn get-customer []
