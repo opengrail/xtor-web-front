@@ -8,6 +8,15 @@
             [cheshire.core :refer :all]
             [compojure.route :as route]))
 
+; Connect to the database when this namespace is loaded
+(def db-map (let [jdbc-url (env :jdbc-database-url)
+                  ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                  db-uri (str "datomic:sql://datomic?" jdbc-url ssl-params)
+                  conn (d/connect db-uri)
+                  db (d/db conn)]
+              {:db db :conn conn}))
+
+
 (def customer-schema [{:db/id                 #db/id[:db.part/db]
                        :db/ident              :person/shared-id
                        :db/valueType          :db.type/uuid
@@ -35,57 +44,26 @@
                 :person/first-name "Oscar"
                 :person/last-name  "Fistorious"}])
 
-(defn- get-jdbc-credentials [url]
-  (let [user-fields (-> (clojure.string/split url #"\?")
-                        (last)
-                        (clojure.string/split #"&")
-                        (first)
-                        (clojure.string/split #"="))
-        user-value (last user-fields)
-        password-fields (-> (clojure.string/split url #"&")
-                            (last)
-                            (clojure.string/split #"="))
-        password-value (last password-fields)]
-    {:username user-value :password password-value}))
-
+; kill this
 (defn db-connect []
-  (let [
-        ;jdbc-url (env :jdbc-database-url)
-        ;credentials (get-jdbc-credentials jdbc-url)
-        ;jdbc-params (str "?username=" (:username credentials) "&password=" (:password credentials))
-        ;ssl-params "ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-        ;simple-jdbc (first (clojure.string/split jdbc-url #"\?"))
-        ;conn-map {:protocol          :sql
-        ;          :db-name           "datomic"
-        ;          :sql-driver-params (str jdbc-params "&" ssl-params)
-        ;          ;:username (:username credentials)
-        ;          ;:password (:password credentials)
-        ;          :sql-url           simple-jdbc}
-
-        hard-coded "datomic:sql://datomic?jdbc:postgresql://ec2-107-21-219-142.compute-1.amazonaws.com:5432/dd7fmhk85j9m9d?user=dxdrdjqkrmsxpn&password=VAnW_4FQ86ks3NKZwHsMTsM0C2&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-        ;created! (d/create-database hard-coded)
+  (let [hard-coded "datomic:sql://datomic?jdbc:postgresql://ec2-107-21-219-142.compute-1.amazonaws.com:5432/dd7fmhk85j9m9d?user=dxdrdjqkrmsxpn&password=VAnW_4FQ86ks3NKZwHsMTsM0C2&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
         conn (d/connect hard-coded)
         db (d/db conn)]
     {:db db :conn conn}))
 
 (defn create-schema [conn]
-  @(d/transact conn customer-schema)
-  (println "Created schema"))
+  @(d/transact conn customer-schema))
 
 (defn insert-data [conn customer]
-  @(d/transact conn customer)
-  (println "Inserted data"))
+  @(d/transact conn customer))
 
 (def oscar [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
 
 (defn query-data [db]
-  (println "Query data")
   (d/pull db [:person/first-name :person/last-name] oscar))
 
 (defn get-customer []
   (let [conn-map (db-connect)]
-    ;(create-schema (:conn conn-map))
-    ;(insert-data (:conn conn-map) customer)
     (query-data (:db conn-map))))
 
 (defn splash []
@@ -100,7 +78,10 @@
              (route/not-found (slurp (io/resource "404.html")))))
 
 (defn -main [& [port]]
-  (let [port (Integer. (or port (env :port) 5000))]
+  (let [port (Integer. (or port (env :port) 5000))
+        created! (d/create-database (:conn db-map))
+        schema! (create-schema (:conn conn-map))
+        insert! (insert-data (:conn conn-map) customer)]
     (jetty/run-jetty (site #'app) {:port port :join? false})))
 
 ;; For interactive development:
