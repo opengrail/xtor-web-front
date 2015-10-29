@@ -8,14 +8,6 @@
             [cheshire.core :refer :all]
             [compojure.route :as route]))
 
-; Connect to the database when this namespace is loaded
-(def db-map (let [jdbc-url (env :jdbc-database-url)
-                  ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  db-uri (str "datomic:sql://datomic?" jdbc-url ssl-params)
-                  conn (d/connect db-uri)
-                  db (d/db conn)]
-              {:db db :conn conn}))
-
 
 (def customer-schema [{:db/id                 #db/id[:db.part/db]
                        :db/ident              :person/shared-id
@@ -44,18 +36,24 @@
                 :person/first-name "Oscar"
                 :person/last-name  "Fistorious"}])
 
-; kill this
-(defn db-connect []
-  (let [hard-coded "datomic:sql://datomic?jdbc:postgresql://ec2-107-21-219-142.compute-1.amazonaws.com:5432/dd7fmhk85j9m9d?user=dxdrdjqkrmsxpn&password=VAnW_4FQ86ks3NKZwHsMTsM0C2&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-        conn (d/connect hard-coded)
-        db (d/db conn)]
-    {:db db :conn conn}))
-
 (defn create-schema [conn]
   @(d/transact conn customer-schema))
 
 (defn insert-data [conn customer]
   @(d/transact conn customer))
+
+; Connect to the database when this namespace is loaded
+(def db-map (let [jdbc-url (env :jdbc-database-url)
+                  ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+                  db-uri (str "datomic:sql://datomic?" jdbc-url ssl-params)
+                  created! (d/create-database db-uri)
+
+                  conn (d/connect db-uri)
+                  db (d/db conn)
+
+                  schema! (create-schema conn)
+                  insert! (insert-data conn customer)]
+              {:db db :conn conn}))
 
 (def oscar [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
 
@@ -63,8 +61,7 @@
   (d/pull db [:person/first-name :person/last-name] oscar))
 
 (defn get-customer []
-  (let [conn-map (db-connect)]
-    (query-data (:db conn-map))))
+  (query-data (:db db-map)))
 
 (defn splash []
   {:status  200
@@ -78,10 +75,7 @@
              (route/not-found (slurp (io/resource "404.html")))))
 
 (defn -main [& [port]]
-  (let [port (Integer. (or port (env :port) 5000))
-        created! (d/create-database (:conn db-map))
-        schema! (create-schema (:conn db-map))
-        insert! (insert-data (:conn db-map) customer)]
+  (let [port (Integer. (or port (env :port) 5000))]
     (jetty/run-jetty (site #'app) {:port port :join? false})))
 
 ;; For interactive development:
