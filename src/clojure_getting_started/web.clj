@@ -66,15 +66,15 @@
         created! (d/create-database hard-coded)
         conn (d/connect hard-coded)
         db (d/db conn)]
-    db))
+    {:db db :conn conn}))
 
-(defn create-schema [db]
-  @(d/transact db customer-schema)
-  (println "Create schema"))
+(defn create-schema [conn]
+  @(d/transact conn customer-schema)
+  (println "Created schema"))
 
-(defn insert-data [db customer]
-  @(d/transact db customer)
-  (println "Insert data"))
+(defn insert-data [conn customer]
+  @(d/transact conn customer)
+  (println "Inserted data"))
 
 (def oscar [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
 
@@ -83,10 +83,10 @@
   (d/pull db [:person/first-name :person/last-name] oscar))
 
 (defn get-customer []
-  (let [db (db-connect)]
-    (create-schema db)
-    (insert-data db customer)
-    (query-data db)))
+  (let [conn-map (db-connect)]
+    (create-schema (:conn conn-map))
+    (insert-data (:conn conn-map) customer)
+    (query-data (:db conn-map))))
 
 (defn splash []
   {:status  200
