@@ -8,6 +8,33 @@
             [cheshire.core :refer :all]
             [compojure.route :as route]))
 
+(def customer-schema [{:db/id                 #db/id[:db.part/db]
+                       :db/ident              :person/shared-id
+                       :db/valueType          :db.type/uuid
+                       :db/cardinality        :db.cardinality/one
+                       :db/unique             :db.unique/value
+                       :db/doc                "The UUID of the person created by the data management tool"
+                       :db.install/_attribute :db.part/db}
+
+                      {:db/id                 #db/id[:db.part/db]
+                       :db/ident              :person/first-name
+                       :db/valueType          :db.type/string
+                       :db/cardinality        :db.cardinality/one
+                       :db/doc                "The first name of the person"
+                       :db.install/_attribute :db.part/db}
+
+                      {:db/id                 #db/id[:db.part/db]
+                       :db/ident              :person/last-name
+                       :db/valueType          :db.type/string
+                       :db/cardinality        :db.cardinality/one
+                       :db/doc                "The last name of the person"
+                       :db.install/_attribute :db.part/db}])
+
+(def customer [{:db/id             #db/id [:db.part/user -1]
+                :person/shared-id  #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"
+                :person/first-name "Oscar"
+                :person/last-name  "Fistorious"}])
+
 (defn- get-jdbc-credentials [url]
   (let [user-fields (-> (clojure.string/split url #"\?")
                         (last)
@@ -38,17 +65,30 @@
         hard-coded "datomic:sql://datomic?jdbc:postgresql://ec2-107-21-219-142.compute-1.amazonaws.com:5432/dd7fmhk85j9m9d?user=dxdrdjqkrmsxpn&password=VAnW_4FQ86ks3NKZwHsMTsM0C2&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
         created! (d/create-database hard-coded)
         conn (d/connect hard-coded)
-        db (d/db conn)
-        worked! (println "Holy mofo, it worked!")
-        ]
+        db (d/db conn)]
     db))
 
-(def db (db-connect))
+(defn create-schema [db]
+  @(d/transact db customer-schema))
+
+(defn insert-data [db customer]
+  @(d/transact db customer))
+
+(defn query-data [db]
+  (let [results (d/pull db [:find (pull ?c [*]) :where [?c :community/name]])
+        customer (str "First:" (:person/first-name results) "Last:" (:person/last-name results))]
+    customer))
+
+(defn get-customer []
+  (let [db (db-connect)]
+    (create-schema db)
+    (insert-data db customer)
+    (query-data db)))
 
 (defn splash []
   {:status  200
    :headers {"Content-Type" "text/plain"}
-   :body    (pr-str ["Hello" db])})
+   :body    (pr-str ["Hello" (get-customer)])})
 
 (defroutes app
            (GET "/" []
