@@ -46,13 +46,15 @@
 (def db-map (let [jdbc-url (env :jdbc-database-url)
                   ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
                   db-uri (str "datomic:sql://datomic?" jdbc-url ssl-params)
-                  created! (d/create-database db-uri)
+
+                  ; created! (d/create-database db-uri)
 
                   conn (d/connect db-uri)
                   db (d/db conn)
 
-                  schema! (create-schema conn)
-                  insert! (insert-data conn customer)]
+                  ; schema! (create-schema conn)
+                  ; insert! (insert-data conn customer)
+                  ]
               {:db db :conn conn}))
 
 (def oscar [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
