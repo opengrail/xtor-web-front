@@ -80,8 +80,8 @@
 (defn -main [& [port]]
   (let [port (Integer. (or port (env :port) 5000))
         created! (d/create-database (:conn db-map))
-        schema! (create-schema (:conn conn-map))
-        insert! (insert-data (:conn conn-map) customer)]
+        schema! (create-schema (:conn db-map))
+        insert! (insert-data (:conn db-map) customer)]
     (jetty/run-jetty (site #'app) {:port port :join? false})))
 
 ;; For interactive development:
