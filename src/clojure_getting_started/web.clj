@@ -75,15 +75,16 @@
     (d/create-database db-url)
     (d/connect db-url)))
 
-(def conn
+(defn get-conn []
   (let [storage (or (env :datomic-storage-type) :heroku_postgres)]
     (if (= storage :heroku_postgres)
       (heroku-postgres)
       (dynamodb))))
 
 (defn get-customer []
-  (populate conn)
-  (query-data conn))
+  (let [conn (get-conn)]
+    (populate conn)
+    (query-data conn)))
 
 (defn splash []
   {:status  200
