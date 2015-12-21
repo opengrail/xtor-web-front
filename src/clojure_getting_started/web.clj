@@ -31,10 +31,12 @@
                        :db/doc                "The last name of the person"
                        :db.install/_attribute :db.part/db}])
 
+(def storage-type (or (env :datomic-storage-type) :heroku_postgres))
+
 (def customer [{:db/id             #db/id [:db.part/user -1]
                 :person/shared-id  #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"
-                :person/first-name "Oscar"
-                :person/last-name  "Fistorious"}])
+                :person/first-name "Hello"
+                :person/last-name  (str "Datomic on " storage-type)}])
 
 (defn create-schema [conn]
   @(d/transact conn customer-schema))
@@ -42,28 +44,46 @@
 (defn insert-data [conn customer]
   @(d/transact conn customer))
 
-; Connect to the database when this namespace is loaded
-(def db-map (let [jdbc-url (env :jdbc-database-url)
-                  ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-                  db-uri (str "datomic:sql://datomic?" jdbc-url ssl-params)
+; anthropomorphise storage - why not
+(def hello [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
 
-                  ; created! (d/create-database db-uri)
+(defn populate [conn]
+  (create-schema conn)
+  (insert-data conn customer))
 
-                  conn (d/connect db-uri)
-                  db (d/db conn)
+(defn query-data [conn]
+  (let [db (d/db conn)]
+    (d/pull db [:person/first-name :person/last-name] hello)))
 
-                  ; schema! (create-schema conn)
-                  ; insert! (insert-data conn customer)
-                  ]
-              {:db db :conn conn}))
+;DYNAMO_DATABASE_URL
+;datomic:ddb://us-east-1/your-system-name/heroku-spaces
 
-(def oscar [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
+;DATOMIC_STORAGE_TYPE
+; DYNAMODB or HEROKU_POSTGRES (default) or POSTGRES
 
-(defn query-data [db]
-  (d/pull db [:person/first-name :person/last-name] oscar))
+; Connect to the database when this namespace is loaded (so far HEROKU_POSTGRES and DYNAMODB)
+
+(defn dynamodb []
+  (let [db-url (env :dynamo-database-url)]
+    ((d/create-database db-url)
+      (d/connect db-url))))
+
+(defn heroku-postgres []
+  (let [jdbc-url (env :jdbc-database-url)
+        ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+        db-url (str "datomic:sql://datomic?" jdbc-url ssl-params)]
+    (d/create-database db-url)
+    (d/connect db-url)))
+
+(def conn
+  (let [storage (or (env :datomic-storage-type) :heroku_postgres)]
+    (if (= storage :heroku_postgres)
+      (heroku-postgres)
+      (dynamodb))))
 
 (defn get-customer []
-  (query-data (:db db-map)))
+  (populate conn)
+  (query-data conn))
 
 (defn splash []
   {:status  200
@@ -76,9 +96,9 @@
            (ANY "*" []
              (route/not-found (slurp (io/resource "404.html")))))
 
-(defn -main [& [port]]
-  (let [port (Integer. (or port (env :port) 5000))]
-    (jetty/run-jetty (site #'app) {:port port :join? false})))
+;(defn -main [& [port]]
+;  (let [port (Integer. (or port (env :port) 5000))]
+;    (jetty/run-jetty (site #'app) {:port port :join? false})))
 
 ;; For interactive development:
 ;; (.stop server)
