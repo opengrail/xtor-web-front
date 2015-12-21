@@ -10,4 +10,4 @@ pom.xml
 /.lein-repl-history
 /.nrepl-port
 /.idea
-clojure_getting_started.iml
+*.iml
