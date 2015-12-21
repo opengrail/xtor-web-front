@@ -13,7 +13,8 @@
                  [environ "1.0.1"]
                  [org.postgresql/postgresql "9.3-1102-jdbc41"]
                  [com.taoensso/carmine "2.12.0"]
-                 [com.datomic/datomic-pro "0.9.5344" :exclusions [joda-time]]]
+                 [com.datomic/datomic-pro "0.9.5344" :exclusions [joda-time]]
+                 [com.amazonaws/aws-java-sdk-dynamodb "1.9.39"]]
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.3.1"]]
   :hooks [environ.leiningen.hooks]
