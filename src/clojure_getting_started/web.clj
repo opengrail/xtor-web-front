@@ -48,7 +48,9 @@
 
 (defn populate [conn]
   (create-schema conn)
-  (insert-data conn customer))
+  (try
+    (insert-data conn customer)
+    (catch Exception e (println "Ignoring insert exception" e))))
 
 (defn query-data [conn]
   (let [db (d/db conn)]
