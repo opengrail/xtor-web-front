@@ -88,22 +88,22 @@
 
 (defn get-customer
   ([] get-customer false)
-  ([populate?]
+  ([freshen?]
    (time
-     (let [conn (get-conn true)]
-       (if populate?
+     (let [conn (get-conn freshen?)]
+       (if freshen?
          (populate conn))
        (query-data conn)))))
 
 (defn datomic-hello []
   {:status  200
    :headers {"Content-Type" "text/plain"}
-   :body    (pr-str ["Hello" (get-customer) "runnning on" storage])})
+   :body    (pr-str ["Quick greeting from a lightly populated Datomic ... " (get-customer) "runnning on" storage])})
 
 (defn splash []
   {:status  200
    :headers {"Content-Type" "text/plain"}
-   :body    (pr-str ["Hello" (get-customer true) "running on" storage])})
+   :body    (pr-str ["Getting the party started on Datomic ... " (get-customer true) "running on" storage])})
 
 (defroutes app
            (GET "/" []
