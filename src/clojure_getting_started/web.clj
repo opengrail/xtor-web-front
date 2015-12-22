@@ -47,7 +47,7 @@
                       :person/last-name  (str "Datomic" (rand-int 1337))}]))
 
 (defn fetch-ids [conn]
-  (d/q '[:find ?id .
+  (d/q '[:find ?id
          :in $ ?person-name
          :where [?id :person/first-name ?person-name]] (d/db conn) "Hello"))
 
