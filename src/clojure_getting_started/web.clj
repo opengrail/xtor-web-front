@@ -31,6 +31,7 @@
                        :db/doc                "The last name of the person"
                        :db.install/_attribute :db.part/db}])
 
+
 (def customer [{:db/id             #db/id [:db.part/user -1]
                 :person/shared-id  #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"
                 :person/first-name "Hello"
@@ -74,9 +75,10 @@
     (d/connect db-url)))
 
 (defn get-conn []
-  (if (= storage-type :heroku_postgres)
-    (heroku-postgres)
-    (dynamodb)))
+  (let [storage-type (env :datomic-storage-type)]
+    (if (= storage-type :heroku_postgres)
+      (heroku-postgres)
+      (dynamodb))))
 
 (defn get-customer []
   (let [conn (get-conn)]
