@@ -50,7 +50,7 @@
   (create-schema conn)
   (try
     (insert-data conn customer)
-    (catch Exception e (println "Ignoring insert exception" e))))
+    (catch Exception e)))                                   ; not good ... ignore exception
 
 (defn query-data [conn]
   (let [db (d/db conn)]
@@ -60,43 +60,56 @@
 ;datomic:ddb://us-east-1/your-system-name/heroku-spaces
 
 (def dynamo-db "DYNAMODB")
+(def storage (or (env :datomic-storage-type) :heroku_postgres))
 
 ;DATOMIC_STORAGE_TYPE
 ; DYNAMODB or HEROKU_POSTGRES (default) or POSTGRES
 
-; Connect to the database when this namespace is loaded (so far HEROKU_POSTGRES and DYNAMODB)
-
-(defn dynamodb []
+(defn connect-dynamodb [create-db?]
   (let [db-url (env :dynamo-database-url)]
-    (d/create-database db-url)
+    (if create-db?
+      (d/create-database db-url))
     (d/connect db-url)))
 
-(defn heroku-postgres []
+(defn connect-heroku-postgres [create-db?]
   (let [jdbc-url (env :jdbc-database-url)
         ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
         db-url (str "datomic:sql://datomic?" jdbc-url ssl-params)]
-    (d/create-database db-url)
+    (if create-db?
+      (d/create-database db-url))
     (d/connect db-url)))
 
-(defn get-conn []
-  (let [storage-type (env :datomic-storage-type)]
-    (if (= storage-type dynamo-db)
-      (dynamodb)
-      (heroku-postgres))))
+(defn get-conn
+  ([] get-conn false)
+  ([create-db?]
+   (if (= storage dynamo-db)
+     (connect-dynamodb create-db?)
+     (connect-heroku-postgres create-db?))))
 
-(defn get-customer []
-  (let [conn (get-conn)]
-    (populate conn)
-    (query-data conn)))
+(defn get-customer
+  ([] get-customer false)
+  ([populate?]
+   (time
+     (let [conn (get-conn true)]
+       (if populate?
+         (populate conn))
+       (query-data conn)))))
+
+(defn datomic-hello []
+  {:status  200
+   :headers {"Content-Type" "text/plain"}
+   :body    (pr-str ["Hello" (get-customer) "runnning on" storage])})
 
 (defn splash []
   {:status  200
    :headers {"Content-Type" "text/plain"}
-   :body    (pr-str ["Hello" (get-customer)])})
+   :body    (pr-str ["Hello" (get-customer true) "running on" storage])})
 
 (defroutes app
            (GET "/" []
              (splash))
+           (GET "/hello" []
+             (datomic-hello))
            (ANY "*" []
              (route/not-found (slurp (io/resource "404.html")))))
 
