@@ -31,14 +31,10 @@
                        :db/doc                "The last name of the person"
                        :db.install/_attribute :db.part/db}])
 
-(def storage-type (if-let [storage (env :datomic-storage-type)]
-                    storage
-                    :heroku_postgres))
-
 (def customer [{:db/id             #db/id [:db.part/user -1]
                 :person/shared-id  #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"
                 :person/first-name "Hello"
-                :person/last-name  (str "Datomic on " storage-type)}])
+                :person/last-name  "Datomic"}])
 
 (defn create-schema [conn]
   @(d/transact conn customer-schema))
