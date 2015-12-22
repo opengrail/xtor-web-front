@@ -57,6 +57,8 @@
 ;DYNAMO_DATABASE_URL
 ;datomic:ddb://us-east-1/your-system-name/heroku-spaces
 
+(def dynamo-db "DYNAMODB")
+
 ;DATOMIC_STORAGE_TYPE
 ; DYNAMODB or HEROKU_POSTGRES (default) or POSTGRES
 
@@ -64,8 +66,8 @@
 
 (defn dynamodb []
   (let [db-url (env :dynamo-database-url)]
-    ((d/create-database db-url)
-      (d/connect db-url))))
+    (d/create-database db-url)
+    (d/connect db-url)))
 
 (defn heroku-postgres []
   (let [jdbc-url (env :jdbc-database-url)
@@ -76,9 +78,9 @@
 
 (defn get-conn []
   (let [storage-type (env :datomic-storage-type)]
-    (if (= storage-type :heroku_postgres)
-      (heroku-postgres)
-      (dynamodb))))
+    (if (= storage-type dynamo-db)
+      (dynamodb)
+      (heroku-postgres))))
 
 (defn get-customer []
   (let [conn (get-conn)]
