@@ -80,14 +80,12 @@
     (connect-heroku-postgres)))
 
 (defn greeting []
-  (time
-    (query-data (get-conn))))
+  (query-data (get-conn)))
 
 (defn get-customer
-  (time
-    (let [conn (get-conn)]
-      (populate conn)
-      (query-data conn))))
+  (let [conn (get-conn)]
+    (populate conn)
+    (query-data conn)))
 
 (defn datomic-hello []
   {:status  200
