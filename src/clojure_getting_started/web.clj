@@ -65,45 +65,39 @@
 ;DATOMIC_STORAGE_TYPE
 ; DYNAMODB or HEROKU_POSTGRES (default) or POSTGRES
 
-(defn connect-dynamodb [create-db?]
-  (let [db-url (env :dynamo-database-url)]
-    (if create-db?
-      (d/create-database db-url))
-    (d/connect db-url)))
+(defn connect-dynamodb []
+  (d/connect (env :dynamo-database-url)))
 
-(defn connect-heroku-postgres [create-db?]
+(defn connect-heroku-postgres []
   (let [jdbc-url (env :jdbc-database-url)
         ssl-params "&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
         db-url (str "datomic:sql://datomic?" jdbc-url ssl-params)]
-    (if create-db?
-      (d/create-database db-url))
     (d/connect db-url)))
 
-(defn get-conn
-  ([] get-conn false)
-  ([create-db?]
-   (if (= storage dynamo-db)
-     (connect-dynamodb create-db?)
-     (connect-heroku-postgres create-db?))))
+(defn get-conn []
+  (if (= storage dynamo-db)
+    (connect-dynamodb)
+    (connect-heroku-postgres)))
+
+(defn greeting []
+  (time
+    (query-data (get-conn))))
 
 (defn get-customer
-  ([] get-customer false)
-  ([freshen?]
-   (time
-     (let [conn (get-conn freshen?)]
-       (if freshen?
-         (populate conn))
-       (query-data conn)))))
+  (time
+    (let [conn (get-conn)]
+      (populate conn)
+      (query-data conn))))
 
 (defn datomic-hello []
   {:status  200
    :headers {"Content-Type" "text/plain"}
-   :body    (pr-str ["Quick greeting from a lightly populated Datomic ... " (get-customer) "runnning on" storage])})
+   :body    (pr-str ["Quick greeting from a lightly populated Datomic ... " (greeting) "runnning on" storage])})
 
 (defn splash []
   {:status  200
    :headers {"Content-Type" "text/plain"}
-   :body    (pr-str ["Getting the party started on Datomic ... " (get-customer true) "running on" storage])})
+   :body    (pr-str ["Getting the party started on Datomic ... " (get-customer) "running on" storage])})
 
 (defroutes app
            (GET "/" []
