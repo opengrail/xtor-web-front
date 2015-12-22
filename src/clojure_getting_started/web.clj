@@ -32,11 +32,6 @@
                        :db.install/_attribute :db.part/db}])
 
 
-(def customer [{:db/id             #db/id [:db.part/user -1]
-                :person/shared-id  #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"
-                :person/first-name "Hello"
-                :person/last-name  "Datomic"}])
-
 (defn create-schema [conn]
   @(d/transact conn customer-schema))
 
@@ -44,17 +39,24 @@
   @(d/transact conn customer))
 
 ; anthropomorphise storage - why not
-(def hello [:person/shared-id #uuid "d213198b-36b5-4c19-8cb1-e172f59091d9"])
-
 (defn populate [conn]
   (create-schema conn)
-  (try
-    (insert-data conn customer)
-    (catch Exception e)))                                   ; not good ... ignore exception
+  (insert-data conn [{:db/id             #db/id [:db.part/user -1]
+                      :person/shared-id  (java.util.UUID/randomUUID)
+                      :person/first-name "Hello"
+                      :person/last-name  (str "Datomic" (rand-int 1337))}]))
+
+(defn fetch-ids [conn]
+  (d/q '[:find ?id .
+         :in $ ?person-name
+         :where [?id :person/first-name ?person-name]] (d/db conn) "Hello"))
+
+(defn random-id [conn]
+  (rand-nth (flatten (map identity (fetch-ids conn)))))
 
 (defn query-data [conn]
   (let [db (d/db conn)]
-    (d/pull db [:person/first-name :person/last-name] hello)))
+    (d/pull db '[*] (random-id conn))))
 
 ;DYNAMO_DATABASE_URL
 ;datomic:ddb://us-east-1/your-system-name/heroku-spaces
